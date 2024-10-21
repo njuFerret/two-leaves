@@ -59,21 +59,27 @@ def _tuple_add(t1, t2):
     return tuple(map(lambda x, y: x + y, t1, t2))
 
 
-def patch_image(img, src=(345, 520), src_size=(10, 10), dst=(355, 520), dst_size=(580, 180), yPos=0):
+# fmt:off
+def patch_image(img, src=(345, 520), src_size=(10, 10), 
+                dst_xPos=355, dst_yPos=520, dst_size=(580, 180),
+                yPos1=0, yPos2=0):
+# fmt:on    
     # 首先使用背景色覆盖原文字
     part = img.copy()
+    # src = (src_xPos, src_yPos)
     crop_region = src + _tuple_add(src, src_size)
     # logging.info(crop_region)
+    dst = (dst_xPos, dst_yPos)
     background = part.crop(crop_region).resize(dst_size)
     paste_region = dst + _tuple_add(dst, dst_size)
     # logging.info(paste_region)
     img.paste(background, paste_region)
 
-    pos, size = (145, 652), (835, 40)
+    pos, size = (125, yPos2), (875, 40)
     move_regin = pos + _tuple_add(pos, size)
     logging.info(move_regin)
-    draw = ImageDraw.Draw(img)
-    draw.rectangle(move_regin, fill=None, outline='#4DB2E6', width=3)
+    # draw = ImageDraw.Draw(img)
+    # draw.rectangle(move_regin, fill=None, outline='#4DB2E6', width=3)
 
     # 下移 自我评价部分
     moved = part.crop(move_regin)
@@ -90,7 +96,7 @@ def patch_image(img, src=(345, 520), src_size=(10, 10), dst=(355, 520), dst_size
 image_data = {
     'week03': {'words': '如鱼得水 一石二鸟 杯弓蛇影 亡羊补牢 画龙点睛 老马识途', 'pos1': 475, 'pos2': 615},
     'week04': {'words': '万紫千红 花红柳绿 白雪皑皑 五颜六色 五光十色 五彩缤纷', 'pos1': 490, 'pos2': 625},
-    'week05': {'words': '繁花似锦 花团锦簇 百花齐放 郁郁葱葱 枝繁叶茂 绿草如茵', 'pos1': 453, 'pos2': 615},
+    'week05': {'words': '繁花似锦 花团锦簇 百花齐放 郁郁葱葱 枝繁叶茂 绿草如茵', 'pos1': 453, 'pos2': 600},
     'week06': {'words': '白雪皑皑 冰天雪地 天寒地冻 滴水成冰 鹅毛大雪 风雪交加', 'pos1': 480, 'pos2': 620},
     'week07': {'words': '水天一色 高耸入云 湖光山色 青山绿水 别有洞天 山清水秀', 'pos1': 515, 'pos2': 652},
 }
@@ -112,10 +118,10 @@ def main():
         words = [w for w in data['words'].split() if w]
         yPos1 = data['pos1']
         yPos2 = data['pos2']
-        im = patch_image(im)
+        im = patch_image(im, dst_yPos=yPos1, yPos2=yPos2)
         im = image_add_text(im, " ".join(words[:3]), 225, yPos1, text_color='#353439', text_size=65)
         im = image_add_text(im, " ".join(words[3:]), 225, yPos1 + 100, text_color='#353439', text_size=65)
-        save_image(im, root.joinpath(f'add_{image.name}'))
+        save_image(im, root.joinpath('results',f'add_{image.name}'))
 
 
 if __name__ == '__main__':
