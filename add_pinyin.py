@@ -55,40 +55,42 @@ def save_image(img, img_path):
     img.save(img_path)
 
 
-def _tuple_add(t1, t2):
-    return tuple(map(lambda x, y: x + y, t1, t2))
+def _tuple_add(pos1, pos2):
+    return tuple(map(lambda x, y: x + y, pos1, pos2))
 
 
 # fmt:off
 def patch_image(img, src=(345, 520), src_size=(10, 10), 
-                dst_xPos=355, dst_yPos=520, dst_size=(580, 180),
-                yPos1=0, yPos2=0):
+                dst=(355,520), dst_size=(580, 180), yPos2=0):
 # fmt:on    
     # 首先使用背景色覆盖原文字
     part = img.copy()
-    # src = (src_xPos, src_yPos)
-    crop_region = src + _tuple_add(src, src_size)
-    # logging.info(crop_region)
-    dst = (dst_xPos, dst_yPos)
-    background = part.crop(crop_region).resize(dst_size)
+    
+    background_region = src + _tuple_add(src, src_size)
+    # logging.info(background_region)
+    
+    background = part.crop(background_region).resize(dst_size)
     paste_region = dst + _tuple_add(dst, dst_size)
     # logging.info(paste_region)
     img.paste(background, paste_region)
 
+    # 自我评价 部分的位置 矩形左上角坐标及宽高
     pos, size = (125, yPos2), (875, 40)
-    move_regin = pos + _tuple_add(pos, size)
-    logging.info(move_regin)
+    assessment_rect = pos + _tuple_add(pos, size)       # 格式，左上角坐标，宽高
+    logging.info(assessment_rect)
+
+    # 下移 自我评价部分
+    assessment = part.crop(assessment_rect)
+    # 先填充原来的位置
+    background = background.resize(assessment.size)     # 填充前，需要缩放，保证大小一致
+    img.paste(background, assessment_rect)
+
     # draw = ImageDraw.Draw(img)
     # draw.rectangle(move_regin, fill=None, outline='#4DB2E6', width=3)
 
-    # 下移 自我评价部分
-    moved = part.crop(move_regin)
-    background = background.resize(moved.size)
-    img.paste(background, move_regin)
+    move_pos = _tuple_add(pos, (0, 55))     # 向下移动 55 px
+    img.paste(assessment, move_pos + _tuple_add(move_pos, size))
 
-    move_pos = _tuple_add(pos, (0, 55))
-    img.paste(moved, move_pos + _tuple_add(move_pos, size))
-    # crop_region =
 
     return img
 
@@ -106,7 +108,9 @@ image_data = {
 def main():
     suffixs = ['.jpg', '.png']
     images = [p for p in root.joinpath('images').glob('*') if p.is_file() and p.suffix in suffixs]
-
+    root.joinpath('results').mkdir(exist_ok=True,parents=True)
+    x_text_Start = 225
+    lingHeight = 100
     for image in images:
         im = load_image(image)
         logging.info(f"{image.name}: {im.size}")
@@ -116,11 +120,11 @@ def main():
         data = image_data[image.stem]
 
         words = [w for w in data['words'].split() if w]
-        yPos1 = data['pos1']
-        yPos2 = data['pos2']
-        im = patch_image(im, dst_yPos=yPos1, yPos2=yPos2)
-        im = image_add_text(im, " ".join(words[:3]), 225, yPos1, text_color='#353439', text_size=65)
-        im = image_add_text(im, " ".join(words[3:]), 225, yPos1 + 100, text_color='#353439', text_size=65)
+        yTextStart1 = data['pos1']      # 成语文本的起始 y 坐标
+        yTextStart2 = data['pos2']      # 自我评价 文本的起始 y 坐标
+        im = patch_image(im, dst=(355,yTextStart1), yPos2=yTextStart2)       # 需要保证覆盖原有文本，同时将自我评价部分下移
+        im = image_add_text(im, " ".join(words[:3]), x_text_Start, yTextStart1, text_color='#353439', text_size=65)
+        im = image_add_text(im, " ".join(words[3:]), x_text_Start, yTextStart1 + lingHeight, text_color='#353439', text_size=65)
         save_image(im, root.joinpath('results',f'add_{image.name}'))
 
 
