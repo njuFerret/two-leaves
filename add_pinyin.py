@@ -75,7 +75,7 @@ def patch_image(img, src=(345, 520), src_size=(10, 10),
     img.paste(background, paste_region)
 
     # 自我评价 部分的位置 矩形左上角坐标及宽高
-    pos, size = (125, yPos2), (875, 40)
+    pos, size = (125, yPos2), (975, 40)
     assessment_rect = pos + _tuple_add(pos, size)       # 格式，左上角坐标，宽高
     logging.info(assessment_rect)
 
@@ -101,6 +101,7 @@ image_data = {
     'week05': {'words': '繁花似锦 花团锦簇 百花齐放 郁郁葱葱 枝繁叶茂 绿草如茵', 'pos1': 453, 'pos2': 600},
     'week06': {'words': '白雪皑皑 冰天雪地 天寒地冻 滴水成冰 鹅毛大雪 风雪交加', 'pos1': 480, 'pos2': 620},
     'week07': {'words': '水天一色 高耸入云 湖光山色 青山绿水 别有洞天 山清水秀', 'pos1': 515, 'pos2': 652},
+    'week08': {'words': '碧空如洗 万里无云 晴空万里 阳光明媚 风和日丽 天高气爽', 'pos1': 495, 'pos2': 628},
 }
 
 
