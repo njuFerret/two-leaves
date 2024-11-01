@@ -14,6 +14,7 @@ from datetime import datetime
 import logging
 import pathlib
 from PIL import Image, ImageDraw, ImageFont
+import json
 
 START = datetime.now()
 thisScript = pathlib.Path(__file__)
@@ -95,15 +96,20 @@ def patch_image(img, src=(345, 520), src_size=(10, 10),
     return img
 
 
-image_data = {
-    'week03': {'words': '如鱼得水 一石二鸟 杯弓蛇影 亡羊补牢 画龙点睛 老马识途', 'pos1': 475, 'pos2': 615},
-    'week04': {'words': '万紫千红 花红柳绿 白雪皑皑 五颜六色 五光十色 五彩缤纷', 'pos1': 490, 'pos2': 625},
-    'week05': {'words': '繁花似锦 花团锦簇 百花齐放 郁郁葱葱 枝繁叶茂 绿草如茵', 'pos1': 453, 'pos2': 600},
-    'week06': {'words': '白雪皑皑 冰天雪地 天寒地冻 滴水成冰 鹅毛大雪 风雪交加', 'pos1': 480, 'pos2': 620},
-    'week07': {'words': '水天一色 高耸入云 湖光山色 青山绿水 别有洞天 山清水秀', 'pos1': 515, 'pos2': 652},
-    'week08': {'words': '碧空如洗 万里无云 晴空万里 阳光明媚 风和日丽 天高气爽', 'pos1': 495, 'pos2': 628},
-}
+# image_data = {
+#     'week03': {'words': '如鱼得水 一石二鸟 杯弓蛇影 亡羊补牢 画龙点睛 老马识途', 'pos1': 475, 'pos2': 615},
+#     'week04': {'words': '万紫千红 花红柳绿 白雪皑皑 五颜六色 五光十色 五彩缤纷', 'pos1': 490, 'pos2': 625},
+#     'week05': {'words': '繁花似锦 花团锦簇 百花齐放 郁郁葱葱 枝繁叶茂 绿草如茵', 'pos1': 453, 'pos2': 600},
+#     'week06': {'words': '白雪皑皑 冰天雪地 天寒地冻 滴水成冰 鹅毛大雪 风雪交加', 'pos1': 480, 'pos2': 620},
+#     'week07': {'words': '水天一色 高耸入云 湖光山色 青山绿水 别有洞天 山清水秀', 'pos1': 515, 'pos2': 652},
+#     'week08': {'words': '碧空如洗 万里无云 晴空万里 阳光明媚 风和日丽 天高气爽', 'pos1': 495, 'pos2': 628},
+# }
 
+def load_data(jsn_file):
+    image_data=None
+    with jsn_file.open('r',encoding='utf-8') as f:
+        image_data = json.load(f)
+    return image_data
 
 # 所有图片缩放为 (1280, 1240)
 def main():
@@ -112,6 +118,7 @@ def main():
     root.joinpath('results').mkdir(exist_ok=True,parents=True)
     x_text_Start = 225
     lingHeight = 100
+    image_data = load_data(root.joinpath('image_data.json'))
     for image in images:
         im = load_image(image)
         logging.info(f"{image.name}: {im.size}")
